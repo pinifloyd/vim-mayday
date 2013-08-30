@@ -3,7 +3,7 @@
 " Description: Run rspec in ConqueTerm using colorized output
 " Maintainer:  Sergey Hanchar <hanchar.sergey@gmail.com>
 " Last Change: August 30, 2013
-" Version:     0.0.1
+" Version:     0.0.2
 " License:     This program is free software. It comes without any warranty,
 "              to the extent permitted by applicable law. You can redistribute
 "              it and/or modify it under the terms of the Do What The Fuck You
@@ -13,63 +13,63 @@
 " ============================================================================
 " OPTIONS SECTION
 " ============================================================================
-"
+
+function! GetSpecRunnerCommand()
+  return g:spec_runner_command
+endfunction
+
+function! GetSpecRunnerOptions()
+  return g:spec_runner_options
+endfunction
+
+function! GetMessageBufferOptions(key)
+  return g:message_buffer_options[a:key]
+endfunction
+
 " By default uses 'rspec' if you have rspec2 installed, or 'spec' for 'rspec1'.
 " You can override this by setting up your .vimrc like this:
 "
 "   let g:spec_runner_command='spec'
 "
-function! GetSpecRunnerCommand()
-  if !exists('g:spec_runner_command')
-    let g:spec_runner_command = SetDefaultSpecRunnerCommand()
-  endif
-
-  return g:spec_runner_command
-endfunction
-
 function! SetDefaultSpecRunnerCommand()
+  if !exists('g:spec_runner_command')
     let l:commands = [
       \ 'rspec', 'bundle exec rspec',
       \ 'spec',  'bundle exec spec' ]
 
     for l:command in l:commands
       if executable(l:command)
-        return l:command
+        let g:spec_runner_command = l:command
+        break
       endif
     endfor
+  endif
 endfunction
+call SetDefaultSpecRunnerCommand()
 
 " By default uses '--color' spec option. You can override this by setting up your
 " .vimrc like this:
 "
 "   let g:spec_runner_options=' --color'
 "
-function! GetSpecRunnerOptions()
+function! SetDefaultSpecRunnerOptions()
   if !exists('g:spec_runner_options')
     let g:spec_runner_options = ' --color'
   endif
-
-  return g:spec_runner_options
 endfunction
+call SetDefaultSpecRunnerOptions()
 
-function! GetMessageBufferOptions(key)
-  call SetDefaultMessageBufferOptions()
-  return g:message_buffer_options[a:key]
-endfunction
-
+" TODO: write somthing helpfull
+"
 function! SetDefaultMessageBufferOptions()
+  " , ['belowright split', 'res 20'])
   let g:message_buffer_options = {
-    \ 'current':  [],
-    \ 'split':    ['split'],
-    \ 'vertical': ['vertical'],
-    \ 'tab':      ['tabnew'] }
+    \ 'current': [],
+    \ 'split':   ['botright split'],
+    \ 'vsplit':  ['botright vsplit'],
+    \ 'tab':     ['tabnew'] }
 endfunction
-" botright   split
-" botright   vsplit
-" belowright split
-" belowright vsplit
-" split
-" vsplit
+call SetDefaultMessageBufferOptions()
 
 " ============================================================================
 " MESSAGE BUFFER SECTION
@@ -77,9 +77,9 @@ endfunction
 "
 " Clear log buffer prior to running the next one.
 "
-function! ShowMessageBuffer(command, position)
+function! ShowMessageBuffer(command, options)
   call CloseMessageBuffer()
-  call OpenMessageBuffer(a:command, a:position)
+  call OpenMessageBuffer(a:command, a:options)
 endfunction
 
 function! CloseMessageBuffer()
@@ -90,11 +90,11 @@ function! CloseMessageBuffer()
 endfunction
 
 function! DeleteMessageBuffer()
-  exec 'bdelete ' . g:message_buffer.buffer_name
+  exec 'bdelete '.g:message_buffer.buffer_name
 endfunction
 
-function! OpenMessageBuffer(command, position)
-  let g:message_buffer = conque_term#open(a:command, GetMessageBufferOptions(a:position))
+function! OpenMessageBuffer(command, options)
+  let g:message_buffer = conque_term#open(a:command, a:options)
 endfunction
 
 " ============================================================================
@@ -102,7 +102,7 @@ endfunction
 " ============================================================================
 "
 function! RunSpecFileCommand()
-  return GetSpecRunnerCommand() . " " . bufname('%') . GetSpecRunnerOptions()
+  return GetSpecRunnerCommand()." ". bufname('%').GetSpecRunnerOptions()
 endfunction
 
 " ============================================================================
@@ -110,7 +110,7 @@ endfunction
 " ============================================================================
 "
 function! RunSpecFile(position)
-  call ShowMessageBuffer(RunSpecFileCommand(), a:position)
+  call ShowMessageBuffer(RunSpecFileCommand(), GetMessageBufferOptions(a:position))
 endfunction
 
 " ============================================================================
@@ -125,7 +125,7 @@ command! -nargs=* RunSpecFile call RunSpecFile(<args>)
 "
 nmap <silent> <leader>rf  :RunSpecFile 'current'<cr>
 nmap <silent> <leader>rfs :RunSpecFile 'split'<cr>
-nmap <silent> <leader>rfv :RunSpecFile 'vertical'<cr>
+nmap <silent> <leader>rfv :RunSpecFile 'vsplit'<cr>
 nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
 
 " botright/belowright/nil
@@ -137,6 +137,3 @@ nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
 " ras (run all  split)
 " rav (run all  vertical)
 " rat (run all  tab
-" , ['belowright split', 'res 20'])
-" command! -nargs=* PutBlah call PutBlah(<args>)
-" map <silent> <leader>rf :PutBlah 'split'<cr>
