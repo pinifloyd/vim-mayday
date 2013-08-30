@@ -11,9 +11,28 @@
 "              See http://sam.zoy.org/wtfpl/COPYING for more details.
 "
 " ============================================================================
+" DEFAULTS SECTION
+" ============================================================================
+"
+function! DefaultSpecRunners()
+    return [
+      \ 'rspec', 'bundle exec rspec',
+      \ 'spec',  'bundle exec spec' ]
+endfunction
+
+function! DefaultMessageBunnerOptions()
+  " , ['belowright split', 'res 20'])
+  return {
+    \ 'current': [],
+    \ 'split':   ['botright split'],
+    \ 'vsplit':  ['botright vsplit'],
+    \ 'tab':     ['tabnew'] }
+endfunction
+
+" ============================================================================
 " OPTIONS SECTION
 " ============================================================================
-
+"
 function! GetSpecRunnerCommand()
   return g:spec_runner_command
 endfunction
@@ -33,11 +52,7 @@ endfunction
 "
 function! SetDefaultSpecRunnerCommand()
   if !exists('g:spec_runner_command')
-    let l:commands = [
-      \ 'rspec', 'bundle exec rspec',
-      \ 'spec',  'bundle exec spec' ]
-
-    for l:command in l:commands
+    for l:command in DefaultSpecRunners()
       if executable(l:command)
         let g:spec_runner_command = l:command
         break
@@ -59,15 +74,13 @@ function! SetDefaultSpecRunnerOptions()
 endfunction
 call SetDefaultSpecRunnerOptions()
 
-" TODO: write somthing helpfull
-"
 function! SetDefaultMessageBufferOptions()
-  " , ['belowright split', 'res 20'])
-  let g:message_buffer_options = {
-    \ 'current': [],
-    \ 'split':   ['botright split'],
-    \ 'vsplit':  ['botright vsplit'],
-    \ 'tab':     ['tabnew'] }
+  if exists('g:mesage_buffer_options')
+    call extend(g:message_buffer_options, DefaultMessageBunnerOptions())
+  else
+    let g:message_buffer_options = DefaultMessageBunnerOptions()
+  endif
+
 endfunction
 call SetDefaultMessageBufferOptions()
 
