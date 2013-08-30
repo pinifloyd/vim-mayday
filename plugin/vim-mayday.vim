@@ -20,7 +20,7 @@ function! DefaultSpecRunners()
       \ 'spec',  'bundle exec spec' ]
 endfunction
 
-function! DefaultMessageBunnerOptions()
+function! DefaultMessageBufferOptions()
   " , ['belowright split', 'res 20'])
   return {
     \ 'current': [],
@@ -30,7 +30,7 @@ function! DefaultMessageBunnerOptions()
 endfunction
 
 " ============================================================================
-" OPTIONS SECTION
+" GETTERS SECTION
 " ============================================================================
 "
 function! GetSpecRunnerCommand()
@@ -45,6 +45,10 @@ function! GetMessageBufferOptions(key)
   return g:message_buffer_options[a:key]
 endfunction
 
+" ============================================================================
+" SETTERS SECTION
+" ============================================================================
+"
 " By default uses 'rspec' if you have rspec2 installed, or 'spec' for 'rspec1'.
 " You can override this by setting up your .vimrc like this:
 "
@@ -76,9 +80,9 @@ call SetDefaultSpecRunnerOptions()
 
 function! SetDefaultMessageBufferOptions()
   if exists('g:mesage_buffer_options')
-    call extend(g:message_buffer_options, DefaultMessageBunnerOptions())
+    call extend(g:message_buffer_options, DefaultMessageBufferOptions())
   else
-    let g:message_buffer_options = DefaultMessageBunnerOptions()
+    let g:message_buffer_options = DefaultMessageBufferOptions()
   endif
 
 endfunction
@@ -150,3 +154,4 @@ nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
 " ras (run all  split)
 " rav (run all  vertical)
 " rat (run all  tab
+" rls (run last spec)
