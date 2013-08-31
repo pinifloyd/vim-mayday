@@ -14,12 +14,33 @@
 " DEFAULTS SECTION
 " ============================================================================
 "
+" By default uses 'rspec' if you have rspec2 installed, or 'spec' for 'rspec1'.
+" You can override this by setting up your .vimrc like this:
+"
+"   let g:spec_runner_command = 'spec'
+"
 function! DefaultSpecRunners()
     return [
       \ 'rspec', 'bundle exec rspec',
       \ 'spec',  'bundle exec spec' ]
 endfunction
 
+" By default uses only '--color' spec option. If you need more you can override
+" this by setting up your .vimrc like this:
+"
+"   let g:spec_runner_options = ' --color'
+"
+function! DefaultSpecRunnerOptions()
+  return ' --color'
+endfunction
+
+" By default uses this settings for positioning message buffer but of course you
+" can override this and create your own by setting up your .vimrc like this:
+"
+" let g:spec_message_buffer_positions = {
+"   \ 'split' : ['topleft split'],
+"   \ 'myown' : ['belowright split'] }
+"
 function! DefaultSpecMessageBufferPositions()
   return {
     \ 'current' : [],
@@ -28,6 +49,13 @@ function! DefaultSpecMessageBufferPositions()
     \ 'tab'     : ['tabnew'] }
 endfunction
 
+" By default uses this settings for resize message buffer but of course you can
+" override this and set your own sizes by setting up your .vimrc like this:
+"
+" let g:spec_message_buffer_sizes = {
+"   \ 'split' : [],
+"   \ 'myown' : ['res 10'] }
+"
 function! DefaultSpecMessageBufferSizes()
   return {
     \ 'current' : [],
@@ -36,13 +64,32 @@ function! DefaultSpecMessageBufferSizes()
     \ 'tab'     : [] }
 endfunction
 
+" If you have the same default settings as above, you will get this:
+"
+" l:options = {
+"   \ 'current' : [],
+"   \ 'split'   : ['botright split', 'res 20'],
+"   \ 'vsplit'  : ['botright vsplit'],
+"   \ 'tab'     : ['tabnew'] }
+"
+" It may differ because you may have other settings in your .vimrc.
+" And of course you can set up your own options by putting something
+" like this in your .vimrc
+"
+" let g:spec_message_buffer_options ={
+"   \ 'split' : ['split', 'res 30'],
+"   \ 'myown' : [] }
+"
 function! DefaultSpecMessageBufferOptions()
   let l:positions = GetSpecMessageBufferPositions()
   let l:sizes     = GetSpecMessageBufferSizes()
   let l:options   = {}
 
   for l:key in keys(l:positions)
-    call extend(l:options, {l:key : l:positions[l:key] + l:sizes[l:key]})
+    call extend(l:options, {l:key : l:positions[l:key]})
+    if has_key(l:sizes, l:key)
+      let l:options[l:key] += l:sizes[l:key]
+    endif
   endfor
   return l:options
 endfunction
@@ -75,12 +122,7 @@ endfunction
 " SETTERS SECTION
 " ============================================================================
 "
-" By default uses 'rspec' if you have rspec2 installed, or 'spec' for 'rspec1'.
-" You can override this by setting up your .vimrc like this:
-"
-"   let g:spec_runner_command='spec'
-"
-function! SetDefaultSpecRunnerCommand()
+function! SetSpecRunnerCommand()
   if !exists('g:spec_runner_command')
     for l:command in DefaultSpecRunners()
       if executable(l:command)
@@ -90,43 +132,48 @@ function! SetDefaultSpecRunnerCommand()
     endfor
   endif
 endfunction
-call SetDefaultSpecRunnerCommand()
+call SetSpecRunnerCommand()
 
-" By default uses '--color' spec option. You can override this by setting up your
-" .vimrc like this:
-"
-"   let g:spec_runner_options=' --color'
-"
 function! SetSpecRunnerOptions()
   if !exists('g:spec_runner_options')
-    let g:spec_runner_options = ' --color'
+    let g:spec_runner_options
+      \ = DefaultSpecRunnerOptions()
   endif
 endfunction
 call SetSpecRunnerOptions()
 
 function! SetSpecMessageBufferPositions()
-  if exists('g:spec_mesage_buffer_positions')
-    call extend(g:spec_message_buffer_positions, DefaultSpecMessageBufferPositions())
+  if exists('g:spec_message_buffer_positions')
+    let g:spec_message_buffer_positions = extend(
+      \ DefaultSpecMessageBufferPositions(),
+      \ g:spec_message_buffer_positions)
   else
-    let g:spec_message_buffer_positions = DefaultSpecMessageBufferPositions()
+    let g:spec_message_buffer_positions
+      \ = DefaultSpecMessageBufferPositions()
   endif
 endfunction
 call SetSpecMessageBufferPositions()
 
 function! SetSpecMessageBufferSizes()
   if exists('g:spec_message_buffer_sizes')
-    call extend(g:spec_message_buffer_sizes, DefaultMessageBufferSizes())
+    let g:spec_message_buffer_sizes = extend(
+      \ DefaultSpecMessageBufferSizes(),
+      \ g:spec_message_buffer_sizes)
   else
-    let g:spec_message_buffer_sizes = DefaultSpecMessageBufferSizes()
+    let g:spec_message_buffer_sizes
+      \ = DefaultSpecMessageBufferSizes()
   endif
 endfunction
 call SetSpecMessageBufferSizes()
 
 function! SetSpecMessageBufferOptions()
   if exists('g:spec_message_buffer_options')
-    call extend(g:spec_message_buffer_options, DefaultSpecMessageBufferOptions())
+    let g:spec_message_buffer_options = extend(
+      \ DefaultSpecMessageBufferOptions(),
+      \ g:spec_message_buffer_options)
   else
-    let g:spec_message_buffer_options = DefaultSpecMessageBufferOptions()
+    let g:spec_message_buffer_options
+      \ = DefaultSpecMessageBufferOptions()
   endif
 endfunction
 call SetSpecMessageBufferOptions()
@@ -135,7 +182,8 @@ call SetSpecMessageBufferOptions()
 " MESSAGE BUFFER SECTION
 " ============================================================================
 "
-" Clear log buffer prior to running the next one.
+" Before show new message buffer we need clear old. So, we do it here by closing
+" old message buffer and terminating process.
 "
 function! CloseSpecMessageBuffer()
   if(exists('g:spec_message_buffer'))
@@ -155,6 +203,8 @@ endfunction
 " ============================================================================
 " FULL SPEC RUNNER COMMAND SECTION
 " ============================================================================
+"
+" Just mapping needed command
 "
 function! RunSpecFileCommand()
   return GetSpecRunnerCommand()." ". bufname('%').GetSpecRunnerOptions()
