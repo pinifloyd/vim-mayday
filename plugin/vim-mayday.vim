@@ -20,13 +20,31 @@ function! DefaultSpecRunners()
       \ 'spec',  'bundle exec spec' ]
 endfunction
 
-function! DefaultMessageBufferOptions()
-  " , ['belowright split', 'res 20'])
+function! DefaultSpecMessageBufferPositions()
   return {
-    \ 'current': [],
-    \ 'split':   ['botright split'],
-    \ 'vsplit':  ['botright vsplit'],
-    \ 'tab':     ['tabnew'] }
+    \ 'current' : [],
+    \ 'split'   : ['botright split'],
+    \ 'vsplit'  : ['botright vsplit'],
+    \ 'tab'     : ['tabnew'] }
+endfunction
+
+function! DefaultSpecMessageBufferSizes()
+  return {
+    \ 'current' : [],
+    \ 'split'   : ['res 20'],
+    \ 'vsplit'  : [],
+    \ 'tab'     : [] }
+endfunction
+
+function! DefaultSpecMessageBufferOptions()
+  let l:positions = GetSpecMessageBufferPositions()
+  let l:sizes     = GetSpecMessageBufferSizes()
+  let l:options   = {}
+
+  for l:key in keys(l:positions)
+    call extend(l:options, {l:key : l:positions[l:key] + l:sizes[l:key]})
+  endfor
+  return l:options
 endfunction
 
 " ============================================================================
@@ -41,8 +59,16 @@ function! GetSpecRunnerOptions()
   return g:spec_runner_options
 endfunction
 
-function! GetMessageBufferOptions(key)
-  return g:message_buffer_options[a:key]
+function! GetSpecMessageBufferPositions()
+  return g:spec_message_buffer_positions
+endfunction
+
+function! GetSpecMessageBufferSizes()
+  return g:spec_message_buffer_sizes
+endfunction
+
+function! GetSpecMessageBufferOption(option)
+  return g:spec_message_buffer_options[a:option]
 endfunction
 
 " ============================================================================
@@ -71,22 +97,39 @@ call SetDefaultSpecRunnerCommand()
 "
 "   let g:spec_runner_options=' --color'
 "
-function! SetDefaultSpecRunnerOptions()
+function! SetSpecRunnerOptions()
   if !exists('g:spec_runner_options')
     let g:spec_runner_options = ' --color'
   endif
 endfunction
-call SetDefaultSpecRunnerOptions()
+call SetSpecRunnerOptions()
 
-function! SetDefaultMessageBufferOptions()
-  if exists('g:mesage_buffer_options')
-    call extend(g:message_buffer_options, DefaultMessageBufferOptions())
+function! SetSpecMessageBufferPositions()
+  if exists('g:spec_mesage_buffer_positions')
+    call extend(g:spec_message_buffer_positions, DefaultSpecMessageBufferPositions())
   else
-    let g:message_buffer_options = DefaultMessageBufferOptions()
+    let g:spec_message_buffer_positions = DefaultSpecMessageBufferPositions()
   endif
-
 endfunction
-call SetDefaultMessageBufferOptions()
+call SetSpecMessageBufferPositions()
+
+function! SetSpecMessageBufferSizes()
+  if exists('g:spec_message_buffer_sizes')
+    call extend(g:spec_message_buffer_sizes, DefaultMessageBufferSizes())
+  else
+    let g:spec_message_buffer_sizes = DefaultSpecMessageBufferSizes()
+  endif
+endfunction
+call SetSpecMessageBufferSizes()
+
+function! SetSpecMessageBufferOptions()
+  if exists('g:spec_message_buffer_options')
+    call extend(g:spec_message_buffer_options, DefaultSpecMessageBufferOptions())
+  else
+    let g:spec_message_buffer_options = DefaultSpecMessageBufferOptions()
+  endif
+endfunction
+call SetSpecMessageBufferOptions()
 
 " ============================================================================
 " MESSAGE BUFFER SECTION
@@ -94,24 +137,19 @@ call SetDefaultMessageBufferOptions()
 "
 " Clear log buffer prior to running the next one.
 "
-function! ShowMessageBuffer(command, options)
-  call CloseMessageBuffer()
-  call OpenMessageBuffer(a:command, a:options)
-endfunction
-
-function! CloseMessageBuffer()
-  if(exists('g:message_buffer'))
-    call g:message_buffer.close()
-    call DeleteMessageBuffer()
+function! CloseSpecMessageBuffer()
+  if(exists('g:spec_message_buffer'))
+    call g:spec_message_buffer.close()
+    call DeleteSpecMessageBuffer()
   endif
 endfunction
 
-function! DeleteMessageBuffer()
-  exec 'bdelete '.g:message_buffer.buffer_name
+function! DeleteSpecMessageBuffer()
+  exec 'bdelete '.g:spec_message_buffer.buffer_name
 endfunction
 
-function! OpenMessageBuffer(command, options)
-  let g:message_buffer = conque_term#open(a:command, a:options)
+function! OpenSpecMessageBuffer(command, option)
+  let g:spec_message_buffer = conque_term#open(a:command, a:option)
 endfunction
 
 " ============================================================================
@@ -126,8 +164,9 @@ endfunction
 " FUNCTION DEFINITION SECTION
 " ============================================================================
 "
-function! RunSpecFile(position)
-  call ShowMessageBuffer(RunSpecFileCommand(), GetMessageBufferOptions(a:position))
+function! RunSpecFile(option)
+  call CloseSpecMessageBuffer()
+  call OpenSpecMessageBuffer(RunSpecFileCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
 " ============================================================================
