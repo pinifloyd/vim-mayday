@@ -217,7 +217,11 @@ endfunction
 " Just mapping needed command
 "
 function! RunSpecFileCommand()
-  return GetSpecRunnerCommand()." ". bufname('%').GetSpecRunnerOptions()
+  return GetSpecRunnerCommand().' '.bufname('%').GetSpecRunnerOptions()
+endfunction
+
+function! RunSpecLineCommand()
+  return GetSpecRunnerCommand().' '.bufname('%').' -l '.line('.').GetSpecRunnerOptions()
 endfunction
 
 " ============================================================================
@@ -227,6 +231,11 @@ endfunction
 function! RunSpecFile(option)
   call CloseSpecMessageBuffer()
   call OpenSpecMessageBuffer(RunSpecFileCommand(), GetSpecMessageBufferOption(a:option))
+endfunction
+
+function! RunSpecLine(option)
+  call CloseSpecMessageBuffer()
+  call OpenSpecMessageBuffer(RunSpecLineCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
 function! RunLastSpecCommand()
@@ -241,6 +250,7 @@ endfunction
 " ============================================================================
 "
 command! -nargs=* RunSpecFile call RunSpecFile(<args>)
+command! -nargs=* RunSpecLine call RunSpecLine(<args>)
 command! RunLastSpecCommand call RunLastSpecCommand()
 
 " ============================================================================
@@ -251,12 +261,12 @@ nmap <silent> <leader>rf  :RunSpecFile 'current'<cr>
 nmap <silent> <leader>rfs :RunSpecFile 'split'<cr>
 nmap <silent> <leader>rfv :RunSpecFile 'vsplit'<cr>
 nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
+nmap <silent> <leader>rl  :RunSpecLine 'current'<cr>
+nmap <silent> <leader>rls :RunSpecLine 'split'<cr>
+nmap <silent> <leader>rlv :RunSpecLine 'vsplit'<cr>
+nmap <silent> <leader>rlt :RunSpecLine 'tab'<cr>
 nmap <silent> <leader>rlc :RunLastSpecCommand<cr>
 
-" rl  (run line current)
-" rls (run line split)
-" rlv (run line vertical)
-" rlt (run line tab)
 " ra  (run all  current)
 " ras (run all  split)
 " rav (run all  vertical)
