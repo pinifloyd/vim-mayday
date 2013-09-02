@@ -118,6 +118,14 @@ function! GetSpecMessageBufferOption(option)
   return g:spec_message_buffer_options[a:option]
 endfunction
 
+function! GetLastSpecCommand()
+  return g:last_spec_command
+endfunction
+
+function! GetLastBufferOption()
+  return g:last_buffer_option
+endfunction
+
 " ============================================================================
 " SETTERS SECTION
 " ============================================================================
@@ -197,6 +205,8 @@ function! DeleteSpecMessageBuffer()
 endfunction
 
 function! OpenSpecMessageBuffer(command, option)
+  let g:last_spec_command   = a:command
+  let g:last_buffer_option  = a:option
   let g:spec_message_buffer = conque_term#open(a:command, a:option)
 endfunction
 
@@ -219,11 +229,19 @@ function! RunSpecFile(option)
   call OpenSpecMessageBuffer(RunSpecFileCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
+function! RunLastSpecCommand()
+  if exists('g:last_spec_command') && exists('g:last_buffer_option')
+    call CloseSpecMessageBuffer()
+    call OpenSpecMessageBuffer(GetLastSpecCommand(), GetLastBufferOption())
+  endif
+endfunction
+
 " ============================================================================
 " COMMAND DEFINITION SECTION
 " ============================================================================
 "
 command! -nargs=* RunSpecFile call RunSpecFile(<args>)
+command! RunLastSpecCommand call RunLastSpecCommand()
 
 " ============================================================================
 " MAPS SECTION
@@ -233,8 +251,8 @@ nmap <silent> <leader>rf  :RunSpecFile 'current'<cr>
 nmap <silent> <leader>rfs :RunSpecFile 'split'<cr>
 nmap <silent> <leader>rfv :RunSpecFile 'vsplit'<cr>
 nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
+nmap <silent> <leader>rlc :RunLastSpecCommand<cr>
 
-" botright/belowright/nil
 " rl  (run line current)
 " rls (run line split)
 " rlv (run line vertical)
@@ -243,4 +261,3 @@ nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
 " ras (run all  split)
 " rav (run all  vertical)
 " rat (run all  tab
-" rls (run last spec)
