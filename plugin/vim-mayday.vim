@@ -186,6 +186,11 @@ function! SetSpecMessageBufferOptions()
 endfunction
 call SetSpecMessageBufferOptions()
 
+function! SetLastCommandAndOption(command, option)
+  let g:last_spec_command   = a:command
+  let g:last_buffer_option  = a:option
+endfunction
+
 " ============================================================================
 " MESSAGE BUFFER SECTION
 " ============================================================================
@@ -205,9 +210,13 @@ function! DeleteSpecMessageBuffer()
 endfunction
 
 function! OpenSpecMessageBuffer(command, option)
-  let g:last_spec_command   = a:command
-  let g:last_buffer_option  = a:option
   let g:spec_message_buffer = conque_term#open(a:command, a:option)
+endfunction
+
+function! ProcessSpecMessageBuffer(command, option)
+  call CloseSpecMessageBuffer()
+  call SetLastCommandAndOption(a:command, GetSpecMessageBufferOption(a:option))
+  call OpenSpecMessageBuffer(a:command, GetSpecMessageBufferOption(a:option))
 endfunction
 
 " ============================================================================
@@ -233,24 +242,20 @@ endfunction
 " ============================================================================
 "
 function! RunSpecFile(option)
-  call CloseSpecMessageBuffer()
-  call OpenSpecMessageBuffer(RunSpecFileCommand(), GetSpecMessageBufferOption(a:option))
+  call ProcessSpecMessageBuffer(RunSpecFileCommand(), a:option)
 endfunction
 
 function! RunSpecLine(option)
-  call CloseSpecMessageBuffer()
-  call OpenSpecMessageBuffer(RunSpecLineCommand(), GetSpecMessageBufferOption(a:option))
+  call ProcessSpecMessageBuffer(RunSpecLineCommand(), a:option)
 endfunction
 
 function! RunSpecAll(option)
-  call CloseSpecMessageBuffer()
-  call OpenSpecMessageBuffer(RunSpecAllCommand(), GetSpecMessageBufferOption(a:option))
+  call ProcessSpecMessageBuffer(RunSpecAllCommand(), a:option)
 endfunction
 
 function! RunLastSpecCommand()
   if exists('g:last_spec_command') && exists('g:last_buffer_option')
-    call CloseSpecMessageBuffer()
-    call OpenSpecMessageBuffer(GetLastSpecCommand(), GetLastBufferOption())
+    call ProcessSpecMessageBuffer(GetLastSpecCommand(), GetLastBufferOption())
   endif
 endfunction
 
