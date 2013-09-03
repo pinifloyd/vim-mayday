@@ -20,10 +20,17 @@ nmap <silent> <leader>rat :RunSpecAll  'tab'<cr>
 nmap <silent> <leader>rlc :RunLastSpecCommand<cr>
 ```
 
- * Requires: http://code.google.com/p/conque/
+Requires
+--------------
+
+ * http://code.google.com/p/conque/
  * https://github.com/basepi/vim-conque
- * Install: copy plugin/* to ~/.vim/plugin or if using pathogen,
-   copy the whole directroy to ~/.vim/bundle
+
+Installation
+--------------
+
+ * Copy ```plugin/*``` to ```~/.vim/plugin```
+ * If using pathogen, copy the whole directroy to ```~/.vim/bundle```
 
 Configuration
 --------------
