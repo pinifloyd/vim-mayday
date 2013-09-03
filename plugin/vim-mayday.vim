@@ -215,8 +215,8 @@ endfunction
 
 function! ProcessSpecMessageBuffer(command, option)
   call CloseSpecMessageBuffer()
-  call SetLastCommandAndOption(a:command, GetSpecMessageBufferOption(a:option))
-  call OpenSpecMessageBuffer(a:command, GetSpecMessageBufferOption(a:option))
+  call SetLastCommandAndOption(a:command, a:option)
+  call OpenSpecMessageBuffer(a:command, a:option)
 endfunction
 
 " ============================================================================
@@ -242,15 +242,15 @@ endfunction
 " ============================================================================
 "
 function! RunSpecFile(option)
-  call ProcessSpecMessageBuffer(RunSpecFileCommand(), a:option)
+  call ProcessSpecMessageBuffer(RunSpecFileCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
 function! RunSpecLine(option)
-  call ProcessSpecMessageBuffer(RunSpecLineCommand(), a:option)
+  call ProcessSpecMessageBuffer(RunSpecLineCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
 function! RunSpecAll(option)
-  call ProcessSpecMessageBuffer(RunSpecAllCommand(), a:option)
+  call ProcessSpecMessageBuffer(RunSpecAllCommand(), GetSpecMessageBufferOption(a:option))
 endfunction
 
 function! RunLastSpecCommand()
@@ -263,25 +263,25 @@ endfunction
 " COMMAND DEFINITION SECTION
 " ============================================================================
 "
-command! -nargs=* RunSpecFile call RunSpecFile(<args>)
-command! -nargs=* RunSpecLine call RunSpecLine(<args>)
-command! -nargs=* RunSpecAll  call RunSpecAll(<args>)
-command! RunLastSpecCommand   call RunLastSpecCommand()
+" command! -nargs=* RunSpecFile call RunSpecFile(<args>)
+" command! -nargs=* RunSpecLine call RunSpecLine(<args>)
+" command! -nargs=* RunSpecAll  call RunSpecAll(<args>)
+" command! RunLastSpecCommand   call RunLastSpecCommand()
 
 " ============================================================================
 " MAPS SECTION
 " ============================================================================
 "
-nmap <silent> <leader>rf  :RunSpecFile 'current'<cr>
-nmap <silent> <leader>rfs :RunSpecFile 'split'<cr>
-nmap <silent> <leader>rfv :RunSpecFile 'vsplit'<cr>
-nmap <silent> <leader>rft :RunSpecFile 'tab'<cr>
-nmap <silent> <leader>rl  :RunSpecLine 'current'<cr>
-nmap <silent> <leader>rls :RunSpecLine 'split'<cr>
-nmap <silent> <leader>rlv :RunSpecLine 'vsplit'<cr>
-nmap <silent> <leader>rlt :RunSpecLine 'tab'<cr>
-nmap <silent> <leader>ra  :RunSpecAll  'current'<cr>
-nmap <silent> <leader>ras :RunSpecAll  'split'<cr>
-nmap <silent> <leader>rav :RunSpecAll  'vsplit'<cr>
-nmap <silent> <leader>rat :RunSpecAll  'tab'<cr>
-nmap <silent> <leader>rlc :RunLastSpecCommand<cr>
+nmap <silent> <leader>rf  :call RunSpecFile('current')<cr>
+nmap <silent> <leader>rfs :call RunSpecFile('split')<cr>
+nmap <silent> <leader>rfv :call RunSpecFile('vsplit')<cr>
+nmap <silent> <leader>rft :call RunSpecFile('tab')<cr>
+nmap <silent> <leader>rl  :call RunSpecLine('current')<cr>
+nmap <silent> <leader>rls :call RunSpecLine('split')<cr>
+nmap <silent> <leader>rlv :call RunSpecLine('vsplit')<cr>
+nmap <silent> <leader>rlt :call RunSpecLine('tab')<cr>
+nmap <silent> <leader>ra  :call RunSpecAll('current')<cr>
+nmap <silent> <leader>ras :call RunSpecAll('split')<cr>
+nmap <silent> <leader>rav :call RunSpecAll('vsplit')<cr>
+nmap <silent> <leader>rat :call RunSpecAll('tab')<cr>
+nmap <silent> <leader>rlc :call RunLastSpecCommand()<cr>
