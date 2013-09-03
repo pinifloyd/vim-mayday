@@ -2,8 +2,8 @@
 " File:        vim-mayday.vim
 " Description: Run rspec in ConqueTerm using colorized output
 " Maintainer:  Sergey Hanchar <hanchar.sergey@gmail.com>
-" Last Change: August 31, 2013
-" Version:     0.0.3
+" Last Change: September 3, 2013
+" Version:     0.0.4
 " License:     This program is free software. It comes without any warranty,
 "              to the extent permitted by applicable law. You can redistribute
 "              it and/or modify it under the terms of the Do What The Fuck You
